@@ -1,0 +1,94 @@
+{
+  "places": [
+    {
+      "id": "food-bank-help",
+      "name": "North Beach Food Bank",
+      "coords": [-122.4098, 37.8001],
+      "description": "Help sort and distribute groceries to local families.",
+      "city": "North Beach",
+      "timeType": "Fixed",
+      "thumbnail": "/thumbnails/food-bank.png"
+    },
+    {
+      "id": "beach-cleanup",
+      "name": "Ocean Cleanup Initiative",
+      "coords": [-122.4093, 37.7990],
+      "description": "Join our weekly team to keep the North Beach coastline pristine.",
+      "city": "North Beach",
+      "timeType": "Fixed",
+      "thumbnail": "/thumbnails/beach-cleanup.png"
+    },
+    {
+      "id": "senior-center-tutoring",
+      "name": "Mission Senior Tech Aid",
+      "coords": [-122.4255, 37.7613],
+      "description": "Help seniors learn to use modern technology and stay connected.",
+      "city": "Mission",
+      "timeType": "Flexible",
+      "thumbnail": "/thumbnails/senior-tech-aid.png"
+    },
+    {
+      "id": "community-garden",
+      "name": "Alamo Square Green Space",
+      "coords": [-122.4388, 37.7775],
+      "description": "Lend a hand with planting, weeding, and composting in the community garden.",
+      "city": "Alamo Square",
+      "timeType": "Flexible",
+      "thumbnail": "/thumbnails/community-garden.png"
+    },
+    {
+      "id": "animal-shelter",
+      "name": "North Beach Animal Rescue",
+      "coords": [-122.4077, 37.7990],
+      "description": "Assist with walking dogs and caring for our furry friends.",
+      "city": "North Beach",
+      "timeType": "Flexible",
+      "thumbnail": "/thumbnails/animal-rescue.png"
+    },
+    {
+      "id": "youth-mentorship",
+      "name": "SF Youth Mentors",
+      "coords": [-122.4097, 37.7992],
+      "description": "Provide guidance and support to local students in their academic journey.",
+      "city": "North Beach",
+      "timeType": "Fixed",
+      "thumbnail": "/thumbnails/youth-mentorship.png"
+    },
+    {
+      "id": "homeless-outreach",
+      "name": "Lower Haight Community Care",
+      "coords": [-122.4380, 37.7722],
+      "description": "Join our team in providing essentials and support to the unhoused.",
+      "city": "Lower Haight",
+      "timeType": "Flexible",
+      "thumbnail": "/thumbnails/food-bank.png"
+    },
+    {
+      "id": "library-volunteer",
+      "name": "Nob Hill Library Friends",
+      "coords": [-122.4123, 37.7899],
+      "description": "Help organize books and assist with children's reading programs.",
+      "city": "Nob Hill",
+      "timeType": "Fixed",
+      "thumbnail": "/thumbnails/youth-mentorship.png"
+    },
+    {
+      "id": "art-museum-docent",
+      "name": "SoMa Art Explorers",
+      "coords": [-122.4135, 37.7805],
+      "description": "Lead guided tours and share the joy of art with museum visitors.",
+      "city": "SoMa",
+      "timeType": "Fixed",
+      "thumbnail": "/thumbnails/senior-tech-aid.png"
+    },
+    {
+      "id": "urban-forestry",
+      "name": "Yerba Buena Tree Planting",
+      "coords": [-122.4019, 37.7818],
+      "description": "Help plant and maintain trees in our urban environment.",
+      "city": "Yerba Buena",
+      "timeType": "Flexible",
+      "thumbnail": "/thumbnails/community-garden.png"
+    }
+  ]
+}
