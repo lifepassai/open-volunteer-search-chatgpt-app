@@ -1,0 +1,28 @@
+#!/bin/bash
+
+cd "$(dirname "$0")"
+cd ..
+
+echo "Building distribution..."
+pnpm install
+pnpm build
+
+echo "Cleaning up mode_modules - removing non-production ones..."
+rm -rf node_modules
+pnpm install --prod --node-linker=hoisted
+
+echo "Creating upload zipfile..."
+rm -f aws/function.zip
+cp index.js index.mjs
+zip -r aws/function.zip \
+    package.json \
+    google-keys.json \
+    keyring.json \
+    index.mjs \
+    dist/* \
+    www/* \
+    www/.well-known/* \
+    node_modules \
+    -x '*@aws-sdk*'
+
+echo "Done!"

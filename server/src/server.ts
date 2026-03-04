@@ -98,8 +98,8 @@ function createMcpServer(): Server {
       try {
         const query = toolInputParser.parse(request.params.arguments ?? {});
         console.log(`Parsed Query: ${JSON.stringify(query, null, 2)}`);
-        const queryResults = await queryVolunteerOpportunities(query as VolunteerOpportunitiesQuery);
-        console.log(`Query results: ${JSON.stringify({query, queryResults}, null, 2)}`);
+        const opportunities = await queryVolunteerOpportunities(query as VolunteerOpportunitiesQuery);
+        console.log(`Query results: ${JSON.stringify({query, opportunities: opportunities.slice(0,3), count: opportunities.length}, null, 2)}`);
 
         return {
           content: [
@@ -110,7 +110,7 @@ function createMcpServer(): Server {
           ],
           structuredContent: {
             query,
-            queryResults,
+            opportunities,
           },
           _meta,
         };

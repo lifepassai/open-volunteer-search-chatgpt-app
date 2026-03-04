@@ -6,7 +6,17 @@
   "description": "Example MCP server that exposes the Open Volunteer demo tools using the official TypeScript SDK.",
   "scripts": {
     "start": "tsx src/server.ts",
-    "inspect": "npx @modelcontextprotocol/inspector"
+    "inspect": "npx @modelcontextprotocol/inspector",
+    "build": "tsc",
+    "cloud:zip": "./aws/zip-function.sh",
+    "cloud:up": "./aws/cloud-up.sh --stage=staging",
+    "cloud:up:prod": "./aws/cloud-up.sh --stage=prod",
+    "cloud:update": "./aws/cloud-update.sh --stage=staging",
+    "cloud:update:prod": "./aws/cloud-update.sh --stage=prod",
+    "cloud:down": "./aws/cloud-down.sh --stage=staging",
+    "cloud:down:prod": "./aws/cloud-down.sh --stage=prod",
+    "cloud:results": "node aws/write-formation-results.js --stage=staging",
+    "cloud:results:prod": "node aws/write-formation-results.js --stage=prod"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^0.5.0",
