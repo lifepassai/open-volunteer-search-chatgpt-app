@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+const WWW_PATH = process.env.WWW_PATH || "./www";
 
 type Widget = {
   id: string;
@@ -14,37 +15,37 @@ type Widget = {
 };
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT_DIR = path.resolve(__dirname, "..", "..");
-const DIST_DIR = path.resolve(ROOT_DIR, "widget", "dist");
+const WWW_DIR = path.resolve(__dirname, WWW_PATH);
 
 function readWidgetHtml(componentName: string): string {
-  if (!fs.existsSync(DIST_DIR)) {
+  if (!fs.existsSync(WWW_DIR)) {
     throw new Error(
-      `Widget assets not found. Expected directory ${DIST_DIR}. Run "pnpm run build" before starting the server.`
+      `Widget assets not found. Expected directory ${WWW_DIR} from ${__dirname}. Run "pnpm run build" before starting the server.`
     );
   }
 
-  const directPath = path.join(DIST_DIR, `${componentName}.html`);
+  const directPath = path.join(WWW_DIR, `${componentName}.html`);
+  console.log(`directPath: ${directPath} from componentName: ${componentName}`);
   let htmlContents: string | null = null;
 
   if (fs.existsSync(directPath)) {
     htmlContents = fs.readFileSync(directPath, "utf8");
   } else {
     const candidates = fs
-      .readdirSync(DIST_DIR)
+      .readdirSync(WWW_DIR)
       .filter(
         (file) => file.startsWith(`${componentName}-`) && file.endsWith(".html")
       )
       .sort();
     const fallback = candidates[candidates.length - 1];
     if (fallback) {
-      htmlContents = fs.readFileSync(path.join(DIST_DIR, fallback), "utf8");
+      htmlContents = fs.readFileSync(path.join(WWW_DIR, fallback), "utf8");
     }
   }
 
   if (!htmlContents) {
     throw new Error(
-      `Widget HTML for "${componentName}" not found in ${DIST_DIR}. Run "pnpm run build" to generate the assets.`
+      `Widget HTML for "${componentName}" not found in ${WWW_DIR}. Run "pnpm run build" to generate the assets.`
     );
   }
 

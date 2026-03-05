@@ -5,7 +5,7 @@
   "private": true,
   "description": "Example MCP server that exposes the Open Volunteer demo tools using the official TypeScript SDK.",
   "scripts": {
-    "start": "tsx src/server.ts",
+    "dev": "tsx watch --inspect index.local.js",
     "inspect": "npx @modelcontextprotocol/inspector",
     "build": "tsc",
     "cloud:zip": "./aws/zip-function.sh",
@@ -19,10 +19,15 @@
     "cloud:results:prod": "node aws/write-formation-results.js --stage=prod"
   },
   "dependencies": {
+    "@codegenie/serverless-express": "^4.17.1",
+    "express": "^4.21.0",
     "@modelcontextprotocol/sdk": "^0.5.0",
+    "dotenv": "^17.3.1",
+    "loglevel": "^1.9.2",
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/node": "^22.0.0",
     "tsx": "^4.19.2",
     "typescript": "^5.6.3"
   },

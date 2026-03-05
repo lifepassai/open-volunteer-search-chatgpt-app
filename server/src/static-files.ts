@@ -3,8 +3,9 @@ import { join, dirname, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFile, stat } from "node:fs/promises";
 
+const WWW_PATH = process.env.WWW_PATH || "./www";
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const DIST_DIR = join(__dirname, "../../widget/dist");
+const WWW_DIR = join(__dirname, WWW_PATH);
 
 const MIME_TYPES: Record<string, string> = {
     ".html": "text/html",
@@ -30,16 +31,17 @@ export async function serveStaticFile(req: IncomingMessage, res: ServerResponse)
             pathname = "/index.html";
         }
 
-        const filePath = join(DIST_DIR, pathname);
+        const filePath = join(WWW_DIR, pathname);
 
         // Security: Ensure path is within DIST_DIR
-        if (!filePath.startsWith(DIST_DIR)) {
-            console.log(`Security check failed: ${filePath} does not start with ${DIST_DIR}`);
+        if (!filePath.startsWith(WWW_DIR)) {
+            console.log(`Security check failed: ${filePath} does not start with ${WWW_DIR}`);
             return false;
         }
 
         const fileStat = await stat(filePath);
         if (!fileStat.isFile()) {
+            console.log(`File is not a file: ${filePath}`);
             return false;
         }
 
@@ -56,6 +58,7 @@ export async function serveStaticFile(req: IncomingMessage, res: ServerResponse)
         return true;
     } catch (error) {
         // File not found or other error
+        console.error(`Error serving static file: ${error}`);
         return false;
     }
 }

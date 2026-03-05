@@ -1,3 +1,4 @@
+import { type Activity } from "./types.js";
 const API_URL = 'https://api.volunteeringdata.io/activity_by_location'; //?lat=51.509&lon=-0.118&within=1000';
 
 export interface Geolocation {
@@ -15,21 +16,10 @@ export interface VolunteerOpportunitiesQuery {
     workLocation?: 'remote' | 'in-person';
 }
 
-export interface Binding {
-    activity_id: { value: string };
-    activity_name: { value: string };
-    activity_latitude: { value: string };
-    activity_longitude: { value: string };
-    activity_distance_from_search_location_in_metres: { value: string };
-    activity_description: { value: string };
-    organisation_name: { value: string };
-    organisation_description: { value: string };
-}
 
 export interface VolunteerOpportunitQueryResult {
-    results: {
-        bindings: Binding[]
-    }
+    id: string;
+    activities: Activity[];
 } 
 
 export async function queryVolunteerOpportunities(query: VolunteerOpportunitiesQuery) {
@@ -56,23 +46,28 @@ export async function queryVolunteerOpportunities(query: VolunteerOpportunitiesQ
         throw new Error(`Failed to query volunteer opportunities: ${url.toString()} ${response.status} ${response.statusText}`);
 
     const data = await response.json() as VolunteerOpportunitQueryResult;
-    return data.results.bindings.map(e=>({
-        id: e.activity_id.value,
-        name: e.activity_name.value,
-        description: e.activity_description.value,
-        organisation: {
-            name: e.organisation_name.value,
-            description: e.organisation_description.value,
-        },
-        coords: [
-            parseFloat(e.activity_longitude.value),
-            parseFloat(e.activity_latitude.value),
-        ],
-        distance: parseFloat(e.activity_distance_from_search_location_in_metres.value),
-        thumbnail: randomItem(THUMBNAILS),
-        city: randomItem(CITIES),
-        timeType: randomItem(["Fixed", "Flexible"])
-    }));
+    if( !data.activities )
+        throw new Error(`No results found for query ${url}: ${JSON.stringify(data, null, 4)}`);
+
+    return data.activities.map((e) => {
+        const loc = e.session?.location?.[0];
+        const lng = loc ? parseFloat(loc.longitude) : 0;
+        const lat = loc ? parseFloat(loc.latitude) : 0;
+        return {
+            id: e.id,
+            name: e.title,
+            description: e.description,
+            organisation: {
+                name: e.organisation.name,
+                description: e.organisation.description,
+            },
+            coords: [lng, lat],
+            distance: parseFloat(String(e.distanceFromSearchLocation?.value ?? "0")),
+            thumbnail: randomItem(THUMBNAILS),
+            city: randomItem(CITIES),
+            timeType: randomItem(["Fixed", "Flexible"]),
+        };
+    });
 }
 
 const THUMBNAILS = [

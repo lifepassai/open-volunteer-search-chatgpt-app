@@ -20,7 +20,7 @@ import {
   type ReadResourceRequest
 } from "@modelcontextprotocol/sdk/types.js";
 
-import { widgetsById, widgetsByUri, widgetInvocationMeta, widgetDescriptorMeta } from "./widgets.js";
+import { widgetsById, widgetsByUri, widgetDescriptorMeta } from "./widgets.js";
 import { tools, toolInputParser } from "./tools.js";
 import { resources, resourceTemplates } from "./resources.js";
 import { serveStaticFile } from "./static-files.js";
@@ -201,8 +201,8 @@ async function handlePostMessage(
   }
 }
 
-const portEnv = Number(process.env.PORT ?? 8000);
-const port = Number.isFinite(portEnv) ? portEnv : 8000;
+//const portEnv = Number(process.env.PORT ?? 8000);
+//const port = Number.isFinite(portEnv) ? portEnv : 8000;
 
 const httpServer = createServer(
   async (req: IncomingMessage, res: ServerResponse) => {
@@ -248,15 +248,5 @@ const httpServer = createServer(
   }
 );
 
-httpServer.on("clientError", (err: Error, socket) => {
-  console.error("HTTP client error", err);
-  socket.end("HTTP/1.1 400 Bad Request\r\n\r\n");
-});
-
-httpServer.listen(port, () => {
-  console.log(`Open Volunteer MCP server listening on http://localhost:${port}`);
-  console.log(`  SSE stream: GET http://localhost:${port}${ssePath}`);
-  console.log(
-    `  Message post endpoint: POST http://localhost:${port}${postPath}?sessionId=...`
-  );
-});
+export default httpServer;
+export { ssePath, postPath };

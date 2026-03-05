@@ -13,6 +13,7 @@ dist-ssr
 *.local
 .env
 pnpm-workspace.yaml
+.pnpm-store/
 
 # Editor directories and files
 .vscode/*

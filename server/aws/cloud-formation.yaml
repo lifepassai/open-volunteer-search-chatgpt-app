@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Matchwise RESTful API service'
+Description: 'Open Volunteer Search ChatGPT API'
 
 Conditions:
   IsProd: !Equals [!Ref Stage, "prod"]
@@ -35,10 +35,6 @@ Parameters:
     Description: Deployment stage (e.g. staging, prod) for tagging and environment identification
     AllowedValues: [staging, prod]
 
-  DeploymentBucketName:
-    Type: String
-    Description: S3 bucket name that stores deployment artifacts (e.g., function.zip)
-
   NodeEnv:
     Type: String
     Default: production
@@ -50,6 +46,10 @@ Parameters:
     Default: info
     Description: Log level
     AllowedValues: [debug, info, warn, error, trace]
+
+  WwwPath:
+    Type: String
+    Description: Path to the www directory
 
   CustomDomainMode:
     Type: String
@@ -77,168 +77,40 @@ Parameters:
     Default: ''
     Description: '(Optional) Route53 hosted zone ID for the domain (e.g. Z123...). When set with CustomDomainMode=create, creates an A record pointing the custom domain to API Gateway.'
 
-  AgenticProfilesBucketArn:
-    Type: String
-    Description: Agentic profiles bucket ARN for direct read/write access
-
-  AgenticProfilesCloudFrontDistributionId:
-    Type: String
-    Description: Agentic profiles CloudFront distribution ID
-
-  FoundationVpcId:
-    Type: String
-    Description: Foundation VPC ID
-
-  PrivateSubnet1Id:
-    Type: String
-    Description: Private subnet 1 ID
-
-  PrivateSubnet2Id:
-    Type: String
-    Description: Private subnet 2 ID
-
-  ValkeyClientPasswordSecretArn:
-    Type: String
-    Description: Valkey password secret ARN
-
-  ValkeyEndpoint:
-    Type: String
-    Description: Valkey endpoint
-
-  ValkeyPort:
-    Type: String
-    Description: Valkey port
-
-  ValkeyClientSecurityGroupId:
-    Type: String
-    Description: Valkey security group ID
-
-  MysqlHostname:
-    Type: String
-    Description: MySQL hostname
-
-  MysqlPassword:
-    Type: String
-    Description: MySQL password
-
-  MysqlUser:
-    Type: String
-    Description: MySQL user
-
-  MysqlDatabase:
-    Type: String
-    Description: MySQL database
-
-  GoogleCloudApiKey:
-    Type: String
-    Description: Google Cloud API Key
-    Default: ''
-
-  GoogleApplicationCredentials:
-    Type: String
-    Description: Google App Credentials
-    Default: ''
-
-  OpenaiApiKey:
-    Type: String
-    Description: OpenAI API Key
-    Default: ''
-
-  GroqApiKey:
-    Type: String
-    Description: Groq API Key
-    Default: ''
-
-  PresenceServiceBaseUrl:
-    Type: String
-    Description: Presence Service Base URL
-    Default: ''
-
-  ApnsTeamId:
-    Type: String
-    Description: APNS Team ID
-    Default: ''
-
-  ApnsBundleId:
-    Type: String
-    Description: APNS Bundle ID
-    Default: ''
-
-  ApnsKeyId:
-    Type: String
-    Description: APNS Key ID
-    Default: ''
-
-  ApnsPrivateKey:
-    Type: String
-    Description: APNS Private Key
-    Default: ''
-
-  ApnsSandboxKeyId:
-    Type: String
-    Description: APNS Sandbox Key ID
-    Default: ''
-
-  ApnsSandboxPrivateKey:
-    Type: String
-    Description: APNS Sandbox Private Key
-    Default: ''
-
-  BrightDataApiToken:
-    Type: String
-    Description: Bright Data API Token
-    Default: ''
-
-  BrightDataDatasetId:
-    Type: String
-    Description: Bright Data Dataset ID
-    Default: ''
-
-  SesSourceArn:
-    Type: String
-    Description: ARN of the SES identity used to send emails (e.g., arn:aws:ses:us-west-2:123456789012:identity/user@example.com)
-
 Resources:
 
-  # Lambda Function
+  # S3 bucket for Lambda deployment packages
+  LambdaDeploymentBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${StackName}-${Stage}-lambda-deployments-${AWS::AccountId}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${StackName}-${Stage}-lambda-deployments'
+
+  # Lambda Function (placeholder code; real code deployed via cloud-update.sh)
   LambdaFunction:
     Type: AWS::Lambda::Function
+    DependsOn: LambdaDeploymentBucket
     Properties:
       FunctionName: !Sub '${StackName}-${Stage}-lambda'
       Runtime: nodejs22.x
       Handler: index.handler
-      Code:
-        S3Bucket: !Ref DeploymentBucketName
-        S3Key: !Sub '${StackName}-${Stage}/function.zip'
       Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        ZipFile: |
+          exports.handler = async () => ({ statusCode: 200, body: "Please deploy the code using pnpm cloud:update:<stage>" });
       Environment:
         Variables:
           NODE_ENV: !Ref NodeEnv
           LOG_LEVEL: !Ref LogLevel
           NODE_OPTIONS: "--enable-source-maps"
-          AGENTIC_PROFILES_CLOUDFRONT_DISTRIBUTION_ID: !Ref AgenticProfilesCloudFrontDistributionId
-          VALKEY_ENDPOINT: !Ref ValkeyEndpoint
-          VALKEY_PORT: !Ref ValkeyPort
-          VALKEY_PASSWORD_SECRET_ARN: !Ref ValkeyClientPasswordSecretArn
-          MYSQL_HOSTNAME: !Ref MysqlHostname
-          MYSQL_PASSWORD: !Ref MysqlPassword
-          MYSQL_USER: !Ref MysqlUser
-          MYSQL_DATABASE: !Ref MysqlDatabase
-          GOOGLE_CLOUD_API_KEY: !Ref GoogleCloudApiKey
-          GOOGLE_APPLICATION_CREDENTIALS: !Ref GoogleApplicationCredentials
-          OPENAI_API_KEY: !Ref OpenaiApiKey
-          GROQ_API_KEY: !Ref GroqApiKey
-          PRESENCE_SERVICE_BASE_URL: !Ref PresenceServiceBaseUrl
-          APNS_TEAM_ID: !Ref ApnsTeamId
-          APNS_BUNDLE_ID: !Ref ApnsBundleId
-          APNS_KEY_ID: !Ref ApnsKeyId
-          APNS_PRIVATE_KEY: !Ref ApnsPrivateKey
-          APNS_SANDBOX_KEY_ID: !Ref ApnsSandboxKeyId
-          APNS_SANDBOX_PRIVATE_KEY: !Ref ApnsSandboxPrivateKey
-          BRIGHT_DATA_API_TOKEN: !Ref BrightDataApiToken
-          BRIGHT_DATA_DATASET_ID: !Ref BrightDataDatasetId
-          SQS_QUEUE_URL: !Ref SqsQueue
-          SQS_QUEUE_ARN: !GetAtt SqsQueue.Arn
+          WWW_PATH: !Ref WwwPath
           SERVICE_URL: !If 
             - UseCustomDomain
             - !If
@@ -248,12 +120,6 @@ Resources:
             - !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com'
       Timeout: 90
       MemorySize: 128
-      VpcConfig:
-        SubnetIds:
-          - !Ref PrivateSubnet1Id
-          - !Ref PrivateSubnet2Id
-        SecurityGroupIds:
-          - !Ref LambdaSecurityGroup
       Tags:
         - Key: Name  
           Value: !Sub '${StackName}-${Stage}-lambda'
@@ -283,20 +149,6 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource: '*'
-        - PolicyName: S3Access
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - s3:ListBucket
-                Resource: !Ref AgenticProfilesBucketArn
-              - Effect: Allow
-                Action:
-                  - s3:GetObject
-                  - s3:GetObjectVersion
-                  - s3:PutObject
-                Resource: !Sub '${AgenticProfilesBucketArn}/*'
         - PolicyName: OutboundHttpAccess
           PolicyDocument:
             Version: '2012-10-17'
@@ -307,74 +159,7 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource: '*'
-        - PolicyName: ElastiCacheAccess
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - elasticache:DescribeCacheClusters
-                  - elasticache:DescribeCacheSubnetGroups
-                Resource: '*'
-        - PolicyName: SecretsManagerAccess
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
-                Resource: !Ref ValkeyClientPasswordSecretArn
-        - PolicyName: VPCAccess
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - ec2:CreateNetworkInterface
-                  - ec2:DescribeNetworkInterfaces
-                  - ec2:DeleteNetworkInterface
-                  - ec2:AssignPrivateIpAddresses
-                  - ec2:UnassignPrivateIpAddresses
-                Resource: '*'
-        - PolicyName: BedrockAccess
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - bedrock:InvokeModel
-                  - bedrock:InvokeModelWithResponseStream
-                Resource: 
-                  - !Sub 'arn:aws:bedrock:${AWS::Region}::foundation-model/anthropic.claude-3-5-haiku-20241022-v1:0'
-                  - !Sub 'arn:aws:bedrock:${AWS::Region}::foundation-model/anthropic.claude-*'
-        - PolicyName: SqsAccess
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - sqs:SendMessage
-                  - sqs:ReceiveMessage
-                  - sqs:DeleteMessage
-                  - sqs:GetQueueAttributes
-                Resource: !GetAtt SqsQueue.Arn
-        - PolicyName: SesAccess
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - ses:SendEmail
-                  - ses:SendRawEmail
-                Resource: !Ref SesSourceArn
-        - PolicyName: CloudFrontAccess
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - cloudfront:CreateInvalidation
-                Resource: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${AgenticProfilesCloudFrontDistributionId}'
+
   # HTTP API Gateway
   HttpApi:
     Type: AWS::ApiGatewayV2::Api
@@ -417,44 +202,6 @@ Resources:
       ApiId: !Ref HttpApi
       StageName: '$default'
       AutoDeploy: true
-
-  # Lambda Security Group
-  LambdaSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Security group for Lambda function to access Valkey cache and VPC endpoints
-      VpcId: !Ref FoundationVpcId
-      SecurityGroupEgress:
-        - IpProtocol: tcp
-          FromPort: 6379
-          ToPort: 6379
-          DestinationSecurityGroupId: !Ref ValkeyClientSecurityGroupId
-          Description: Allow Lambda to access Valkey cache
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          CidrIp: 10.0.0.0/16
-          Description: Allow Lambda to access VPC endpoints
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          CidrIp: 0.0.0.0/0
-          Description: Allow Lambda to access AWS services (HTTPS)
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
-          Description: Allow Lambda to access AWS services (HTTP)
-        - IpProtocol: tcp
-          FromPort: 3306
-          ToPort: 3306
-          CidrIp: 10.0.0.0/16
-          Description: Allow Lambda to access MySQL in this VPC
-      Tags:
-        - Key: Name
-          Value: !Sub '${StackName}-${Stage}-lambda-security-group'
-        - Key: StackName
-          Value: !Ref StackName
 
   # Lambda Permission for HTTP API Gateway
   LambdaPermission:
@@ -507,28 +254,6 @@ Resources:
       LogGroupName: !Sub '/aws/lambda/${StackName}-${Stage}-lambda-log'
       RetentionInDays: 14
 
-  # SQS Queue
-  SqsQueue:
-    Type: AWS::SQS::Queue
-    Properties:
-      QueueName: !Sub '${StackName}-${Stage}-queue'
-      VisibilityTimeout: 90
-      MaximumMessageSize: 8192
-      Tags:
-        - Key: Name
-          Value: !Sub '${StackName}-${Stage}-queue'
-        - Key: StackName
-          Value: !Ref StackName
-
-  # Lambda SQS Trigger
-  LambdaSqsEventSourceMapping:
-    Type: AWS::Lambda::EventSourceMapping
-    Properties:
-      BatchSize: 1
-      Enabled: true
-      EventSourceArn: !GetAtt SqsQueue.Arn
-      FunctionName: !Ref LambdaFunction
-
 Outputs:
   HttpApiUrl:
     Description: 'HTTP API Gateway URL'
@@ -556,3 +281,9 @@ Outputs:
       - !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/'
     Export:
       Name: !Sub '${AWS::StackName}-ServiceUrl'
+
+  DeploymentBucketName:
+    Description: 'S3 bucket for Lambda deployment packages'
+    Value: !Ref LambdaDeploymentBucket
+    Export:
+      Name: !Sub '${AWS::StackName}-DeploymentBucketName'

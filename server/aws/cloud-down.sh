@@ -14,4 +14,4 @@ for arg in "$@"; do
 done
 : "${STAGE:?Pass --stage=staging or --stage=prod to the script}"
 
-aws cloudformation delete-stack --stack-name \"${StackName}-${STAGE}\"
+aws cloudformation delete-stack --stack-name "${StackName}-${STAGE}"

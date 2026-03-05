@@ -7,6 +7,7 @@ Open Volunteer Opportunity Search MCP service supporting Chat GPT UI/App
 - Node.js 18+
 - pnpm
 - Clone the repo: git clone <TBD>
+- ngrok for local development
 
 
 ## Build the React app/widget assets
@@ -20,6 +21,7 @@ pnpm build
 To test the local React/widget build:
 
 ```bash
+cd widget
 pnpm dev
 ```
 
@@ -32,7 +34,7 @@ pnpm dev
 ngrok http 8000
 ```
 
-    Remember the forwarding URL
+    Remember the forwarding URL for the next step...
 
 2. Rebuild the widget with the BASE_URL from ngrok
 
@@ -45,17 +47,21 @@ BASE_URL=https://juliet-noncarnivorous-marna.ngrok-free.dev pnpm build
 
 ```bash
 cd server
-pnpm start
+pnpm dev
 ```
 
-4. Add MCP to ChatGPT
+## Add MCP to ChatGPT
 
-    a. In ChatGPT webpage, click account, then Settings
-    b. Click Apps, Advanced Settings, then enable developer mode
-    c. In advanced settings, click "Create app"
-    d. Use URL in ngrok window + /mcp
+1. In ChatGPT webpage, click account, then Settings
+2. Click Apps, Advanced Settings, then enable developer mode
+3. In advanced settings, click "Create app"
+4. Use URL in ngrok window + /mcp
 
-5. Chat with tool
+## Chat with tool
+
+1. Start a new ChatGPT chat
+2. Use the "+" to add the Open Volunteer tool
+3. Type in "Find a volunteering opportunity near London"
 
 
 ## Using MCP Inspector
