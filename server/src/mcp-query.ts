@@ -16,6 +16,13 @@ export async function handleJrpcQuery( request: JsonRpcRequest ) {
 
     try {
         const query = toolInputParser.parse(request.params.arguments ?? {});
+        if( !query.geolocation ) {
+            console.warn(`No geolocation provided in the query, adding London...`);
+            query.geolocation = {
+                latitude: 53,
+                longitude: 0,
+            };
+        }
         console.log(`Parsed Query: ${JSON.stringify(query, null, 2)}`);
         const opportunities = await queryVolunteerOpportunities(query as VolunteerOpportunitiesQuery);
         console.log(`Query results: ${JSON.stringify({query, opportunities: opportunities.slice(0,3), count: opportunities.length}, null, 2)}`);

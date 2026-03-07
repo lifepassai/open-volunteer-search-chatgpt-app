@@ -21,7 +21,7 @@ const toolInputSchema = {
         }
       },
       required: ["latitude", "longitude"],
-      description: "The geolocation of the user"
+      description: "Required. The geolocation of the user.  If the geolocation is not known, use the closest available geolocation based on the names of any geographic locations provided such as city names."
     },
     keywords: {
       type: "array",
@@ -61,7 +61,7 @@ const toolInputSchema = {
       description: "The age of the volunteer"
     },
   },
-  required: [],
+  required: ["geolocation"],
   additionalProperties: false,
 } as const;
 

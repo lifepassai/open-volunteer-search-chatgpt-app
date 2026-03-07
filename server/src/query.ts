@@ -22,7 +22,7 @@ export interface VolunteerOpportunitQueryResult {
     activities: Activity[];
 } 
 
-export async function queryVolunteerOpportunities(query: VolunteerOpportunitiesQuery) {
+export async function queryVolunteerOpportunities(query: VolunteerOpportunitiesQuery, limit: number = 20) {
     const { geolocation, distance = 25 } = query; // default to within 25km
 
     const url = new URL(API_URL);
@@ -49,6 +49,10 @@ export async function queryVolunteerOpportunities(query: VolunteerOpportunitiesQ
     if( !data.activities )
         throw new Error(`No results found for query ${url}: ${JSON.stringify(data, null, 4)}`);
 
+    if( data.activities.length > limit ) {
+        console.warn(`Limiting results to ${limit} from ${data.activities.length}`);
+        data.activities = data.activities.slice(0, limit);
+    }
     return data.activities.map((e) => {
         const loc = e.session?.location?.[0];
         const lng = loc ? parseFloat(loc.longitude) : 0;

@@ -38,16 +38,20 @@ ngrok http 8000
 
 2. Rebuild the widget with the BASE_URL from ngrok
 
+Edit the widget/.env so that "BASE_URL=https://juliet-noncarnivorous-marna.ngrok-free.dev"
+
+Then rebuild:
+
 ```bash
 cd widget
-BASE_URL=https://juliet-noncarnivorous-marna.ngrok-free.dev pnpm build
+pnpm build
 ```
 
 3. Start Open Volunteer MCP Server
 
 ```bash
 cd server
-pnpm dev
+pnpm dev:express
 ```
 
 ## Add MCP to ChatGPT

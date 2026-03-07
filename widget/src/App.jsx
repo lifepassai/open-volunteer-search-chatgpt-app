@@ -2,11 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { createRoot } from "react-dom/client";
-import markers from "./markers.json";
+//import markers from "./markers.json";
 import { AnimatePresence } from "framer-motion";
 import Inspector from "./Inspector.jsx";
 import Sidebar from "./Sidebar.jsx";
 import { useOpenAiGlobal } from "./misc/use-openai-global.js";
+import { useWidgetProps } from "./misc/use-widget-props.js";
 import { useMaxHeight } from "./misc/use-max-height.js";
 import { Maximize2 } from "lucide-react";
 import {
@@ -35,20 +36,30 @@ function fitMapToMarkers(map, coords) {
   map.fitBounds(bounds, { padding: 60, animate: true });
 }
 
+/** Extract opportunities from tool output - handles both MCP postMessage and window.openai.toolOutput shapes */
+function getOpportunitiesFromToolOutput(toolOutput) {
+  if (!toolOutput) return [];
+  const content = toolOutput.structuredContent ?? toolOutput;
+  const opps = content?.opportunities;
+  return Array.isArray(opps) ? opps : [];
+}
+
 export default function App() {
+  const [opportunities, setOpportunities] = useState([]);
+  const toolOutputFromGlobals = useWidgetProps(null);
   const mapRef = useRef(null);
   const mapObj = useRef(null);
   const markerObjs = useRef([]);
   const baseUrl = (import.meta.env.BASE_URL || "").replace(/\/$/, "");
   const places = React.useMemo(() => {
-    return (markers?.places || []).map((place) => ({
+    return (opportunities || []).map((place) => ({
       ...place,
       thumbnail:
         place.thumbnail && place.thumbnail.startsWith("/")
           ? `${baseUrl}${place.thumbnail}`
           : place.thumbnail,
     }));
-  }, [markers?.places, baseUrl]);
+  }, [opportunities, baseUrl]);
   const markerCoords = places.map((p) => p.coords);
   const navigate = useNavigate();
   const location = useLocation();
@@ -66,17 +77,22 @@ export default function App() {
   const maxHeight = useMaxHeight() ?? undefined;
 
   const handleMessageEvent = (event) => {
-    console.log("Received message:", JSON.stringify(event,null,4));
-
     if (event.source !== window.parent) return;
     const message = event.data;
     if (!message || message.jsonrpc !== "2.0") return;
     if (message.method !== "ui/notifications/tool-result") return;
 
     const toolResult = message.params;
-    const data = toolResult?.structuredContent;
-    // Update UI from `data`.
-  }
+    const opps = getOpportunitiesFromToolOutput(toolResult);
+    setOpportunities(opps);
+  };
+
+  // Sync from window.openai.toolOutput (ChatGPT extension path - see developers.openai.com/apps-sdk/mcp-apps-in-chatgpt)
+  useEffect(() => {
+    if (!toolOutputFromGlobals) return;
+    const opps = getOpportunitiesFromToolOutput(toolOutputFromGlobals);
+    setOpportunities(opps);
+  }, [toolOutputFromGlobals]);
 
   useEffect(() => {
     if (mapObj.current) return;
