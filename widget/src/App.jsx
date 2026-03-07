@@ -88,9 +88,18 @@ export default function App() {
   };
 
   // Sync from window.openai.toolOutput (ChatGPT extension path - see developers.openai.com/apps-sdk/mcp-apps-in-chatgpt)
+  const lastToolOutputRef = useRef(null);
   useEffect(() => {
     if (!toolOutputFromGlobals) return;
     const opps = getOpportunitiesFromToolOutput(toolOutputFromGlobals);
+    // Guard against update loop: only update when content actually changed.
+    // setWidgetState can cause host to re-dispatch set_globals with fresh refs.
+    const sig =
+      opps.length > 0
+        ? `${opps.length}:${opps[0]?.id}:${opps[opps.length - 1]?.id}`
+        : "0";
+    if (lastToolOutputRef.current === sig) return;
+    lastToolOutputRef.current = sig;
     setOpportunities(opps);
   }, [toolOutputFromGlobals]);
 
@@ -190,6 +199,13 @@ export default function App() {
   useEffect(() => {
     if (!mapObj.current) return;
     addAllMarkers(places);
+  }, [places]);
+
+  // Recenter map when new opportunities/places arrive
+  useEffect(() => {
+    if (!mapObj.current || !places.length) return;
+    const coords = places.map((p) => p.coords);
+    fitMapToMarkers(mapObj.current, coords);
   }, [places]);
 
   // Pan the map when the selected place changes via routing
