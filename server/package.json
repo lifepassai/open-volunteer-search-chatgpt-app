@@ -5,9 +5,10 @@
   "private": true,
   "description": "Example MCP server that exposes the Open Volunteer demo tools using the official TypeScript SDK.",
   "scripts": {
-    "dev": "tsx watch --inspect index.local.js",
-    "inspect": "npx @modelcontextprotocol/inspector",
     "build": "tsc",
+    "dev:express": "tsx watch --inspect index.local.js",
+    "dev:mcp-sdk": "USE_MCP_SDK=true tsx watch --inspect index.local.js",
+    "inspect": "npx @modelcontextprotocol/inspector",
     "cloud:zip": "./aws/zip-function.sh",
     "cloud:up": "./aws/cloud-up.sh --stage=staging",
     "cloud:up:prod": "./aws/cloud-up.sh --stage=prod",
@@ -19,17 +20,21 @@
     "cloud:results:prod": "node aws/write-formation-results.js --stage=prod"
   },
   "dependencies": {
+    "@agentic-profile/a2a-mcp-express": "^0.7.3",
     "@codegenie/serverless-express": "^4.17.1",
-    "express": "^4.21.0",
     "@modelcontextprotocol/sdk": "^0.5.0",
+    "cors": "^2.8.5",
     "dotenv": "^17.3.1",
+    "express": "^5.2.1",
     "loglevel": "^1.9.2",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.3.0",
     "tsx": "^4.19.2",
     "typescript": "^5.6.3"
   },
-  "packageManager": "pnpm@10.28.2+sha512.41872f037ad22f7348e3b1debbaf7e867cfd448f2726d9cf74c08f19507c31d2c8e7a11525b983febc2df640b5438dee6023ebb1f84ed43cc2d654d2bc326264"
+  "packageManager": "pnpm@10.30.3+sha512.c961d1e0a2d8e354ecaa5166b822516668b7f44cb5bd95122d590dd81922f606f5473b6d23ec4a5be05e7fcd18e8488d47d978bbe981872f1145d06e9a740017"
 }

@@ -1,8 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-const WWW_PATH = process.env.WWW_PATH || "./www";
+import { wwwDir } from "./www-path.js";
 
 type Widget = {
   id: string;
@@ -14,17 +12,14 @@ type Widget = {
   responseText: string;
 };
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const WWW_DIR = path.resolve(__dirname, WWW_PATH);
-
 function readWidgetHtml(componentName: string): string {
-  if (!fs.existsSync(WWW_DIR)) {
+  if (!fs.existsSync(wwwDir)) {
     throw new Error(
-      `Widget assets not found. Expected directory ${WWW_DIR} from ${__dirname}. Run "pnpm run build" before starting the server.`
+      `Widget assets not found. Expected directory ${wwwDir}. From widgets/ run "pnpm build" before starting the server.`
     );
   }
 
-  const directPath = path.join(WWW_DIR, `${componentName}.html`);
+  const directPath = path.join(wwwDir, `${componentName}.html`);
   console.log(`directPath: ${directPath} from componentName: ${componentName}`);
   let htmlContents: string | null = null;
 
@@ -32,20 +27,20 @@ function readWidgetHtml(componentName: string): string {
     htmlContents = fs.readFileSync(directPath, "utf8");
   } else {
     const candidates = fs
-      .readdirSync(WWW_DIR)
+      .readdirSync(wwwDir)
       .filter(
         (file) => file.startsWith(`${componentName}-`) && file.endsWith(".html")
       )
       .sort();
     const fallback = candidates[candidates.length - 1];
     if (fallback) {
-      htmlContents = fs.readFileSync(path.join(WWW_DIR, fallback), "utf8");
+      htmlContents = fs.readFileSync(path.join(wwwDir, fallback), "utf8");
     }
   }
 
   if (!htmlContents) {
     throw new Error(
-      `Widget HTML for "${componentName}" not found in ${WWW_DIR}. Run "pnpm run build" to generate the assets.`
+      `Widget HTML for "${componentName}" not found in ${wwwDir}. Run "pnpm run build" to generate the assets.`
     );
   }
 
@@ -72,7 +67,7 @@ export const widgets: Widget[] = [
   {
     id: "volunteering-opportunity-map",
     title: "Show Volunteering Opportunity Map",
-    templateUri: "ui://widget/volunteering-opportunity-map.html",
+    templateUri: "ui://widget/index.html",
     invoking: "Creating a map of volunteering opportunities",
     invoked: "Your map is ready!",
     html: readWidgetHtml("index"),

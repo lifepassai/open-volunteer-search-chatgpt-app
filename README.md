@@ -78,7 +78,24 @@ pnpm inspect
 ```
 
 
-### Direct to local MCP
+
+### Direct to local MCP using express server
+
+```bash
+pnpm dev:express
+```
+
+1. Transport type Streamable HTTP
+2. URL: http://127.0.0.1:3003/mcp
+3. Connection type: Direct
+4. Click "Connect"
+
+
+### Direct to local MCP using MCP SDK server
+
+```bash
+pnpm dev:mcp-sdk
+```
 
 1. Transport type SSE
 2. URL: http://127.0.0.1:8000/mcp
